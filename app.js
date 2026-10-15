@@ -61,7 +61,11 @@ $('loginForm').addEventListener('submit', async e=>{
   if(error){ $('loginMsg').innerHTML='<div class="msg err">เข้าสู่ระบบไม่สำเร็จ: ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>'; return; }
   await afterLogin(data.user);
 });
-$('logoutBtn').addEventListener('click', async ()=>{ await db.auth.signOut(); location.reload(); });
+$('logoutBtn').addEventListener('click', async ()=>{
+  try{ await db.auth.signOut({scope:'local'}); }catch(e){}
+  try{ Object.keys(localStorage).forEach(k=>{ if(k.startsWith('sb-')) localStorage.removeItem(k); }); }catch(e){}
+  location.href = location.pathname;
+});
 
 async function loadSettings(){
   const {data:set}=await db.from('settings').select('*').eq('id',1).single();
